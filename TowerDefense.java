@@ -16,6 +16,7 @@ public class TowerDefense extends Application {
     private static final int WIDTH = 800;
     private static final int HEIGHT = 800;
     private static int initialisation=0;
+    private static double vitesse=0.3;
     private ArrayList<tour> tours = new ArrayList<>();
     private ArrayList<enemi> enemis = new ArrayList<>();
 
@@ -106,7 +107,7 @@ public class TowerDefense extends Application {
 
     private void update() {
         for (int i = 0; i < enemis.size(); i++) {
-            double pos = enemis.get(i).positionY + 0.3;
+            double pos = enemis.get(i).positionY + vitesse;
             enemis.get(i).setPosY(pos);
         }
         
