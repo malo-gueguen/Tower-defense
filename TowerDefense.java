@@ -12,11 +12,12 @@ import java.util.ArrayList;
 public class TowerDefense extends Application {
     
     // Dimensions du jeu
-    private static int posInit =0;
+    private static int posInitY =0;
+    private static int posInitX =265;
     private static final int WIDTH = 800;
     private static final int HEIGHT = 800;
     private static int initialisation=0;
-    private static double vitesse=0.3;
+    private static double vitesse=0.8;
     private ArrayList<tour> tours = new ArrayList<>();
     private ArrayList<enemi> enemis = new ArrayList<>();
 
@@ -40,7 +41,9 @@ public class TowerDefense extends Application {
         class enemi {
             double positionX=0;
             double positionY=0;
-            double type=0;
+            int type=0;
+            int etat=1;
+
     
             public enemi(double a ,double b ,int c){
                 this.positionX=a;
@@ -52,6 +55,9 @@ public class TowerDefense extends Application {
             }
             public void setPosY(double b){
                 this.positionY=b;
+            }
+            public void setEtat(int c){
+                this.etat=c;
             }
         }
     
@@ -96,25 +102,43 @@ public class TowerDefense extends Application {
 
     private void initialisation(){
         for (int i=0;i<4;i++){
-                tours.add(new tour(0, 0, 0));
+                tours.add(new tour(285, 0, 0));
             }
             for (int i=0;i<4;i++){
                 enemis.add(new enemi(0, 0, 0));
-                enemis.get(i).setPosY(posInit);
-                posInit=posInit-30;
+                enemis.get(i).setPosY(posInitY);
+                posInitY=posInitY-30;
+                enemis.get(i).setPosX(posInitX);
             }
+            System.out.println("initialisation...");
     }
 
     private void update() {
-        for (int i = 0; i < enemis.size(); i++) {
-            double pos = enemis.get(i).positionY + vitesse;
-            enemis.get(i).setPosY(pos);
-        }
-        
         if(initialisation==0){
             initialisation();
             initialisation++;
         }
+
+        for (int i = 0; i < enemis.size(); i++) {
+            if (enemis.get(i).positionY<365 && enemis.get(i).etat==1){
+                double posY = enemis.get(i).positionY + vitesse;
+                enemis.get(i).setPosY(posY);
+            }
+            else if (enemis.get(i).positionX<515 && enemis.get(i).etat==1){
+                double posX = enemis.get(i).positionX + vitesse;
+                enemis.get(i).setPosX(posX);
+            }
+            else if (enemis.get(i).positionY<800 && enemis.get(i).etat==1){
+                double posY = enemis.get(i).positionY + vitesse;
+                enemis.get(i).setPosY(posY);
+            }
+            else {
+                enemis.get(i).setEtat(0);
+            }
+            
+        }
+        
+        
         
         if (200<clicX && clicX<240){
             if(40<clicY && clicY<80){
@@ -181,7 +205,7 @@ public class TowerDefense extends Application {
             posT = posT + 100;
         for (enemi enemi : enemis) {
         gc.setFill(Color.PINK);
-        gc.fillRect(265,enemi.positionY , 20, 20);
+        gc.fillRect(enemi.positionX ,enemi.positionY , 20, 20);
         }
         }
     }
