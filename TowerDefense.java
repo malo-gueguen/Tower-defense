@@ -21,28 +21,40 @@ public class TowerDefense extends Application {
     private ArrayList<tour> tours = new ArrayList<>();
     private ArrayList<enemi> enemis = new ArrayList<>();
 
-
-    
     private double clicX = 0, clicY = 0; 
-    class tour {
-        int menu=0;
-        int type=0;
-        int lvl=0;
 
-        public tour(int a ,int b ,int c){
+    class tour {
+        private int menu=0;
+        private int type=0;
+        private int lvl=0;
+        private int posX=0;
+        private int posY=0;
+
+        public tour(int a ,int b ,int c ,int d ,int e){
             this.menu=a;
             this.type=b;
             this.lvl=c;
+            this.posX=d;
+            this.posY=e;
         }
         public void setMenu(int a){
             this.menu=a;
         }
+        public void setLvl(int a){
+            this.lvl=a;
+        }
+        public void setType(int a){
+            this.type=a;
+        }
+        
     }
+
         class enemi {
-            double positionX=0;
-            double positionY=0;
-            int type=0;
-            int etat=1;
+            private double positionX=0;
+            private double positionY=0;
+            private int type=0;
+            private int etat=1;
+            private int hp=1;
 
     
             public enemi(double a ,double b ,int c){
@@ -102,7 +114,8 @@ public class TowerDefense extends Application {
 
     private void initialisation(){
         for (int i=0;i<4;i++){
-                tours.add(new tour(285, 0, 0));
+                tours.add(new tour(285, 0, 0, 200, 40+100*i));
+                
             }
             for (int i=0;i<4;i++){
                 enemis.add(new enemi(0, 0, 0));
@@ -114,11 +127,12 @@ public class TowerDefense extends Application {
     }
 
     private void update() {
+        //initialisation
         if(initialisation==0){
             initialisation();
             initialisation++;
         }
-
+        //déplacement des ennemis
         for (int i = 0; i < enemis.size(); i++) {
             if (enemis.get(i).positionY<365 && enemis.get(i).etat==1){
                 double posY = enemis.get(i).positionY + vitesse;
@@ -137,45 +151,80 @@ public class TowerDefense extends Application {
             }
             
         }
-        
-        
-        
-        if (200<clicX && clicX<240){
-            if(40<clicY && clicY<80){
-                for (int j=0; j<tours.size(); j++){
-                    tours.get(j).setMenu(0);
+        //selection tour
+        for (int i = 0; i < tours.size(); i++) {
+        if (tours.get(i).posX < clicX && clicX < tours.get(i).posX+40){
+            if(tours.get(i).posY<clicY && clicY < tours.get(i).posY+40){
+                if(tours.get(i).lvl==0){
+                    tours.get(i).setMenu(1); 
                 }
-                tours.get(0).setMenu(1); 
+                else{
+                    tours.get(i).setMenu(2); 
+                }
+                 
             }
-            else if(140<clicY && clicY<180){
-                for (int j=0; j<tours.size(); j++){
-                    tours.get(j).setMenu(0);
-                }
-                tours.get(1).setMenu(1); 
-            }
-            else if(240<clicY && clicY<280){
-                for (int j=0; j<tours.size(); j++){
-                    tours.get(j).setMenu(0);
-                }
-                tours.get(2).setMenu(1); 
-            }
-            else if(340<clicY && clicY<380){
-                for (int j=0; j<tours.size(); j++){
-                    tours.get(j).setMenu(0);
-                tours.get(3).setMenu(1); 
-                }
-            }   
-            else{
-                for (int j=0; j<tours.size(); j++){
-                    tours.get(j).setMenu(0);
-                }
+  
+            // else{
+            //     for (int j=0; j<tours.size(); j++){
+            //         tours.get(j).setMenu(0);
+            //     }
+        // }
+            
         }
-            }
-            else{
-                for (int j=0; j<tours.size(); j++){
-                    tours.get(j).setMenu(0);
+    }
+    //boutons menu
+        //bouton fermer
+        for ( int i = 0; i < tours.size(); i++) {
+            if(tours.get(i).menu >=1){
+                if(tours.get(i).posX+10 < clicX && clicX < tours.get(i).posX+30){
+                    if(tours.get(i).posY+50 < clicY && clicY < tours.get(i).posY+70){
+                        tours.get(i).setMenu(0); 
+                    }
                 }
+            }
         }
+        //bouton type
+        for ( int i = 0; i < tours.size(); i++) {
+            if(tours.get(i).menu ==1){
+                if(tours.get(i).posY+10 < clicY && clicY < tours.get(i).posY+30){
+                    if(tours.get(i).posX+50 < clicX && clicX < tours.get(i).posX+70){
+                        tours.get(i).setType(1); 
+                        System.out.println("archer");
+                        tours.get(i).setMenu(2); 
+                    }
+                    if(tours.get(i).posX-30 < clicX && clicX < tours.get(i).posX-10){
+                        tours.get(i).setType(2);
+                        System.out.println("mage");
+                        tours.get(i).setMenu(2); 
+                    }
+                }
+            }
+        }
+        //bouton ameliorer 
+        for ( int i = 0; i < tours.size(); i++) {
+            if(tours.get(i).menu ==2){
+                if(tours.get(i).posY+10 < clicY && clicY < tours.get(i).posY+30){
+                    if(tours.get(i).posX+50 < clicX && clicX < tours.get(i).posX+70){
+                        tours.get(i).setLvl(tours.get(i).lvl+1); 
+                        System.out.println("lvl"+tours.get(i).lvl);
+                    }
+                }
+            }
+        }//bouton vendre
+        for ( int i = 0; i < tours.size(); i++) {
+            if(tours.get(i).menu ==2){
+                if(tours.get(i).posY+10 < clicY && clicY < tours.get(i).posY+30){
+                    if(tours.get(i).posX-30 < clicX && clicX < tours.get(i).posX-10){
+                        tours.get(i).setLvl(0); 
+                        tours.get(i).setMenu(1);
+                        tours.get(i).setType(0);
+                        System.out.println("lvl"+tours.get(i).lvl);
+                    }
+                }
+            }
+        }
+        clicX = 0;
+        clicY = 0;
     }
 
     private void draw(GraphicsContext gc) {
@@ -183,30 +232,53 @@ public class TowerDefense extends Application {
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, WIDTH, HEIGHT);
 
-        
+
         //map
         gc.setFill(Color.WHITE);
         gc.fillRect(250, 350, 250, 50); 
         gc.fillRect(250, 0, 50, 350);
         gc.fillRect(500, 350, 50, 500);
-        int posT=40;
+        
+        //tours
         for (tour tour : tours) {
+            //menu
            if(tour.menu ==1){
             gc.setFill(Color.GREEN);
-            gc.fillRect(170, posT+10, 20, 20);
-            gc.fillRect(250, posT+10, 20, 20);
+            gc.fillOval(tour.posX-5, tour.posY-5, 50, 50);
+            gc.fillRect(tour.posX-30, tour.posY+10, 20, 20);
+            gc.fillRect(tour.posX+50, tour.posY+10, 20, 20);
+            gc.fillRect(tour.posX+10, tour.posY+50, 20, 20);
             gc.setFill(Color.RED);
-            
            }
-           else{
+           if(tour.menu ==2){
+            gc.setFill(Color.PINK);
+            gc.fillOval(tour.posX-5, tour.posY-5, 50, 50);
+            gc.fillRect(tour.posX-30, tour.posY+10, 20, 20);
+            gc.fillRect(tour.posX+50, tour.posY+10, 20, 20);
+            gc.fillRect(tour.posX+10, tour.posY+50, 20, 20);
+            gc.setFill(Color.RED);
+            gc.setStroke(Color.RED);
+            gc.strokeOval(tour.posX-105, tour.posY-105, 250, 250);
+           }
+           if (tour.type==0){
             gc.setFill(Color.BLUE);
            }
-            gc.fillOval(200, posT, 40, 40);
-            posT = posT + 100;
+           if (tour.type==1){
+            gc.setFill(Color.YELLOW);
+           }
+           if (tour.type==2){
+            gc.setFill(Color.PURPLE);
+           }
+            gc.fillOval(tour.posX, tour.posY, 40, 40);
+            
+            
+        
+        }
+        
+        //ennemis
         for (enemi enemi : enemis) {
         gc.setFill(Color.PINK);
         gc.fillRect(enemi.positionX ,enemi.positionY , 20, 20);
-        }
         }
     }
 
