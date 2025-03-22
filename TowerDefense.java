@@ -12,14 +12,14 @@ import java.util.ArrayList;
 public class TowerDefense extends Application {
     
     // Dimensions du jeu
-    private static int posInitY =0;
-    private static int posInitX =265;
+     private static int posInitY =0;
+    // private static int posInitX =265;
     private static final int WIDTH = 800;
     private static final int HEIGHT = 800;
     private static int initialisation=0;
-    private static double vitesse=0.8;
     private ArrayList<tour> tours = new ArrayList<>();
     private ArrayList<enemi> enemis = new ArrayList<>();
+    private ArrayList<projectile> projectiles = new ArrayList<>();
 
     private double clicX = 0, clicY = 0; 
 
@@ -29,6 +29,7 @@ public class TowerDefense extends Application {
         private int lvl=0;
         private int posX=0;
         private int posY=0;
+        private int cooldown=0;
 
         public tour(int a ,int b ,int c ,int d ,int e){
             this.menu=a;
@@ -46,6 +47,9 @@ public class TowerDefense extends Application {
         public void setType(int a){
             this.type=a;
         }
+        public void setCooldown(int a){
+            this.cooldown=a;
+        }
         
     }
 
@@ -53,8 +57,8 @@ public class TowerDefense extends Application {
             private double positionX=0;
             private double positionY=0;
             private int type=0;
-            private int etat=1;
             private int hp=1;
+            private double vitesse=0.4;
 
     
             public enemi(double a ,double b ,int c){
@@ -68,11 +72,36 @@ public class TowerDefense extends Application {
             public void setPosY(double b){
                 this.positionY=b;
             }
-            public void setEtat(int c){
-                this.etat=c;
+            public void setHp(int c){
+                this.hp=c;
             }
         }
     
+        class projectile {
+            private double positionX=0;
+            private double positionY=0;
+            private double posXcible=0;
+            private double posYcible=0;
+            private int depart=0;
+            private int touche=0;
+            
+            
+            public projectile(double a ,double b ,double c ,double d ,int e){
+                this.positionX=a;
+                this.positionY=b;
+                this.posXcible=c;
+                this.posYcible=d;
+                this.depart=e;
+            }
+            public void setPos(double a,double b){
+                this.positionX=a;
+                this.positionY=b;
+            }
+            public void setTouche(int a){
+                this.touche=a;
+            }
+        
+        }
 
     @Override
     public void start(Stage primaryStage) {
@@ -118,10 +147,10 @@ public class TowerDefense extends Application {
                 
             }
             for (int i=0;i<4;i++){
-                enemis.add(new enemi(0, 0, 0));
+                enemis.add(new enemi(265, 0, 0));
                 enemis.get(i).setPosY(posInitY);
                 posInitY=posInitY-30;
-                enemis.get(i).setPosX(posInitX);
+                
             }
             System.out.println("initialisation...");
     }
@@ -134,23 +163,48 @@ public class TowerDefense extends Application {
         }
         //déplacement des ennemis
         for (int i = 0; i < enemis.size(); i++) {
-            if (enemis.get(i).positionY<365 && enemis.get(i).etat==1){
-                double posY = enemis.get(i).positionY + vitesse;
-                enemis.get(i).setPosY(posY);
+            if (enemis.get(i).positionY<365 && enemis.get(i).hp==1){
+                enemis.get(i).setPosY(enemis.get(i).positionY + enemis.get(i).vitesse);
             }
-            else if (enemis.get(i).positionX<515 && enemis.get(i).etat==1){
-                double posX = enemis.get(i).positionX + vitesse;
-                enemis.get(i).setPosX(posX);
+            else if (enemis.get(i).positionX<515 && enemis.get(i).hp==1){
+                enemis.get(i).setPosX(enemis.get(i).positionX + enemis.get(i).vitesse);
             }
-            else if (enemis.get(i).positionY<800 && enemis.get(i).etat==1){
-                double posY = enemis.get(i).positionY + vitesse;
-                enemis.get(i).setPosY(posY);
+            else if (enemis.get(i).positionY<800 && enemis.get(i).hp==1){
+                enemis.get(i).setPosY(enemis.get(i).positionY + enemis.get(i).vitesse);
             }
             else {
-                enemis.get(i).setEtat(0);
+                enemis.get(i).setHp(0);
             }
             
         }
+        //tire de la tour
+        for (int i = 0; i < tours.size(); i++) {
+            if (tours.get(i).lvl>0 ) {
+                for (int j = 0; j < enemis.size(); j++){
+                    double calcx = enemis.get(j).positionX - tours.get(i).posX;
+                    double calcy = enemis.get(j).positionY - tours.get(i).posY;
+                    double distance = Math.sqrt(calcx * calcx + calcy * calcy);
+                    if (distance < 135 && enemis.get(j).hp > 0 && tours.get(i).cooldown<0) {
+                        enemis.get(j).setHp(enemis.get(j).hp-1);
+                        tours.get(i).setCooldown(500);
+                        projectiles.add(new projectile(tours.get(i).posX,tours.get(i).posY, enemis.get(j).positionX,enemis.get(j).positionY,i ));
+                        
+                    }
+
+                }
+            }
+            
+        }
+       //touche la cible
+        // for (int j = 0; j < enemis.size(); j++){
+        //     for (int i = 0; i < projectiles.size(); j++){
+        //         if (projectiles.get(i).positionX >= enemis.get(j).positionX && projectiles.get(i).positionY >= enemis.get(j).positionY && projectiles.get(i).touche==0){
+        //             enemis.get(j).setHp(enemis.get(j).hp-1);
+        //             projectiles.get(i).setTouche(1);
+        //         }
+        //     }
+        // }
+        
         //selection tour
         for (int i = 0; i < tours.size(); i++) {
         if (tours.get(i).posX < clicX && clicX < tours.get(i).posX+40){
@@ -161,15 +215,7 @@ public class TowerDefense extends Application {
                 else{
                     tours.get(i).setMenu(2); 
                 }
-                 
             }
-  
-            // else{
-            //     for (int j=0; j<tours.size(); j++){
-            //         tours.get(j).setMenu(0);
-            //     }
-        // }
-            
         }
     }
     //boutons menu
@@ -191,18 +237,25 @@ public class TowerDefense extends Application {
                         tours.get(i).setType(1); 
                         System.out.println("archer");
                         tours.get(i).setMenu(2); 
+                        tours.get(i).setLvl(1);
+                        clicX = 0;
+                        clicY = 0;
                     }
                     if(tours.get(i).posX-30 < clicX && clicX < tours.get(i).posX-10){
                         tours.get(i).setType(2);
                         System.out.println("mage");
                         tours.get(i).setMenu(2); 
+                        tours.get(i).setLvl(1);
+                        clicX = 0;
+                        clicY = 0;
+
                     }
                 }
             }
         }
         //bouton ameliorer 
         for ( int i = 0; i < tours.size(); i++) {
-            if(tours.get(i).menu ==2){
+            if(tours.get(i).lvl >0){
                 if(tours.get(i).posY+10 < clicY && clicY < tours.get(i).posY+30){
                     if(tours.get(i).posX+50 < clicX && clicX < tours.get(i).posX+70){
                         tours.get(i).setLvl(tours.get(i).lvl+1); 
@@ -210,9 +263,10 @@ public class TowerDefense extends Application {
                     }
                 }
             }
-        }//bouton vendre
+        }
+        //bouton vendre
         for ( int i = 0; i < tours.size(); i++) {
-            if(tours.get(i).menu ==2){
+            if(tours.get(i).lvl >0){
                 if(tours.get(i).posY+10 < clicY && clicY < tours.get(i).posY+30){
                     if(tours.get(i).posX-30 < clicX && clicX < tours.get(i).posX-10){
                         tours.get(i).setLvl(0); 
@@ -225,6 +279,9 @@ public class TowerDefense extends Application {
         }
         clicX = 0;
         clicY = 0;
+        for ( int i = 0; i < tours.size(); i++) {
+            tours.get(i).setCooldown(tours.get(i).cooldown-1);
+        }
     }
 
     private void draw(GraphicsContext gc) {
@@ -270,15 +327,25 @@ public class TowerDefense extends Application {
             gc.setFill(Color.PURPLE);
            }
             gc.fillOval(tour.posX, tour.posY, 40, 40);
-            
-            
-        
+        }
+        //tir
+        for ( int i = 0; i < projectiles.size(); i++) {
+            if(projectiles.get(i).touche==0){
+                double a =   (projectiles.get(i).posXcible-tours.get(projectiles.get(i).depart).posX)/ 50 + projectiles.get(i).positionX;
+                double b =   (projectiles.get(i).posYcible-tours.get(projectiles.get(i).depart).posY)/ 50 + projectiles.get(i).positionY;
+                projectiles.get(i).setPos(a, b);
+                gc.fillOval(projectiles.get(i).positionX, projectiles.get(i).positionY, 20, 20);
+            }
+
         }
         
+
         //ennemis
         for (enemi enemi : enemis) {
+            if (enemi.hp>0){
         gc.setFill(Color.PINK);
         gc.fillRect(enemi.positionX ,enemi.positionY , 20, 20);
+            }
         }
     }
 
