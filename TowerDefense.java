@@ -31,12 +31,11 @@ public class TowerDefense extends Application {
         private int posY=0;
         private int cooldown=0;
 
-        public tour(int a ,int b ,int c ,int d ,int e){
-            this.menu=a;
-            this.type=b;
-            this.lvl=c;
-            this.posX=d;
-            this.posY=e;
+        public tour(int a ,int b){
+            
+            
+            this.posX=a;
+            this.posY=b;
         }
         public void setMenu(int a){
             this.menu=a;
@@ -80,17 +79,19 @@ public class TowerDefense extends Application {
         class projectile {
             private double positionX=0;
             private double positionY=0;
-            private double posXcible=0;
-            private double posYcible=0;
+            private int cible=0;
+            // private double posXcible=0;
+            // private double posYcible=0;
             private int depart=0;
             private int touche=0;
             
             
-            public projectile(double a ,double b ,double c ,double d ,int e){
+            public projectile(double a ,double b ,int c  ,int e){
                 this.positionX=a;
                 this.positionY=b;
-                this.posXcible=c;
-                this.posYcible=d;
+                this.cible=c;
+                // this.posXcible=c;
+                // this.posYcible=d;
                 this.depart=e;
             }
             public void setPos(double a,double b){
@@ -142,17 +143,23 @@ public class TowerDefense extends Application {
     }
 
     private void initialisation(){
+        for (int i=0;i<3;i++){
+            tours.add(new tour(190, 30+130*i));
+            tours.add(new tour(190+130*i,420));
+            tours.add(new tour(320,30+130*i));
+            tours.add(new tour(580, 420+130*i));
+        }
+        for (int i=0;i<2;i++){
+            tours.add(new tour(450+130*i,290));
+            tours.add(new tour(450, 550+130*i));
+        }
         for (int i=0;i<4;i++){
-                tours.add(new tour(285, 0, 0, 200, 40+100*i));
-                
-            }
-            for (int i=0;i<4;i++){
-                enemis.add(new enemi(265, 0, 0));
-                enemis.get(i).setPosY(posInitY);
-                posInitY=posInitY-30;
-                
-            }
-            System.out.println("initialisation...");
+            enemis.add(new enemi(265, 0, 0));
+            enemis.get(i).setPosY(posInitY);
+            posInitY=posInitY-30;
+            
+        }
+        System.out.println("initialisation...");
     }
 
     private void update() {
@@ -185,9 +192,9 @@ public class TowerDefense extends Application {
                     double calcy = enemis.get(j).positionY - tours.get(i).posY;
                     double distance = Math.sqrt(calcx * calcx + calcy * calcy);
                     if (distance < 135 && enemis.get(j).hp > 0 && tours.get(i).cooldown<0) {
-                        enemis.get(j).setHp(enemis.get(j).hp-1);
+                        
                         tours.get(i).setCooldown(500);
-                        projectiles.add(new projectile(tours.get(i).posX,tours.get(i).posY, enemis.get(j).positionX,enemis.get(j).positionY,i ));
+                        projectiles.add(new projectile(tours.get(i).posX,tours.get(i).posY, j,i ));
                         
                     }
 
@@ -196,15 +203,16 @@ public class TowerDefense extends Application {
             
         }
        //touche la cible
-        // for (int j = 0; j < enemis.size(); j++){
-        //     for (int i = 0; i < projectiles.size(); j++){
-        //         if (projectiles.get(i).positionX >= enemis.get(j).positionX && projectiles.get(i).positionY >= enemis.get(j).positionY && projectiles.get(i).touche==0){
-        //             enemis.get(j).setHp(enemis.get(j).hp-1);
-        //             projectiles.get(i).setTouche(1);
-        //         }
-        //     }
-        // }
-        
+            for (int i = 0; i < projectiles.size(); i++){
+                if(projectiles.get(i).touche==0){
+                    if (projectiles.get(i).positionX <= enemis.get(projectiles.get(i).cible).positionX+5 && projectiles.get(i).positionX >= enemis.get(projectiles.get(i).cible).positionX-5){
+                        if(projectiles.get(i).positionY <= enemis.get(projectiles.get(i).cible).positionY+5 && projectiles.get(i).positionY >= enemis.get(projectiles.get(i).cible).positionY-5 ){
+                            projectiles.get(i).setTouche(1);
+                            enemis.get(projectiles.get(i).cible).setHp(enemis.get(projectiles.get(i).cible).hp-1);
+                        }
+                    }
+                }
+            }
         //selection tour
         for (int i = 0; i < tours.size(); i++) {
         if (tours.get(i).posX < clicX && clicX < tours.get(i).posX+40){
@@ -331,8 +339,8 @@ public class TowerDefense extends Application {
         //tir
         for ( int i = 0; i < projectiles.size(); i++) {
             if(projectiles.get(i).touche==0){
-                double a =   (projectiles.get(i).posXcible-tours.get(projectiles.get(i).depart).posX)/ 50 + projectiles.get(i).positionX;
-                double b =   (projectiles.get(i).posYcible-tours.get(projectiles.get(i).depart).posY)/ 50 + projectiles.get(i).positionY;
+                double a =(enemis.get(projectiles.get(i).cible).positionX-tours.get(projectiles.get(i).depart).posX)/ 20 + projectiles.get(i).positionX;
+                double b =(enemis.get(projectiles.get(i).cible).positionY-tours.get(projectiles.get(i).depart).posY)/ 20 + projectiles.get(i).positionY;
                 projectiles.get(i).setPos(a, b);
                 gc.fillOval(projectiles.get(i).positionX, projectiles.get(i).positionY, 20, 20);
             }
