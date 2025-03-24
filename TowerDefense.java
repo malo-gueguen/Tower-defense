@@ -16,6 +16,8 @@ public class TowerDefense extends Application {
      private static int posInitY =0;
     // private static int posInitX =0;
     private static int or=0;
+    private static int vie=20;
+    private static int cooldownULT=0;
     private static final int WIDTH = 800;
     private static final int HEIGHT = 800;
     private static int initialisation=0;
@@ -186,8 +188,6 @@ public class TowerDefense extends Application {
             }
             
         }
-       
-
         System.out.println("initialisation...");
     }
 
@@ -318,11 +318,24 @@ public class TowerDefense extends Application {
                 }
             }
         }
+        //bouton bonus
+        if (clicX>50 && clicX<100 && clicY>50 && clicY<80 && cooldownULT==0){
+            for (int i=0; i<enemis.size(); i++){
+                if(enemis.get(i).positionY>0){
+                    enemis.get(i).setHp(0);
+                    cooldownULT=5000;
+                }
+            }
+        }
         clicX = 0;
         clicY = 0;
         for ( int i = 0; i < tours.size(); i++) {
             tours.get(i).setCooldown(tours.get(i).cooldown-1);
         }
+        if (cooldownULT>0){
+            cooldownULT=cooldownULT-1;
+        }
+        
     }
 
     private void draw(GraphicsContext gc) {
@@ -408,7 +421,13 @@ public class TowerDefense extends Application {
         gc.setFont(Font.font(23));
         gc.fillText("or:"+or,55,725);
         gc.strokeRect(50, 700, 100, 35);
-        
+        //bonus
+        gc.setFill(Color.RED);
+        gc.fillRect(50, 50, 50, 30);
+        gc.setFill(Color.BLACK);
+        System.out.println(cooldownULT);
+        gc.fillRect(50, 50, cooldownULT / 100, 30);
+        gc.strokeRect(50, 50, 50, 30);
     }
 
     public static void main(String[] args) {
