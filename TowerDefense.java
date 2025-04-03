@@ -15,8 +15,9 @@ public class TowerDefense extends Application {
     // Dimensions du jeu
      private static int posInitY =0;
     // private static int posInitX =0;
-    private static int or=0;
+    private static int or=100;
     private static int vie=20;
+    private static int lanceB=0;
     private static int cooldownULT=0;
     private static final int WIDTH = 800;
     private static final int HEIGHT = 800;
@@ -26,6 +27,7 @@ public class TowerDefense extends Application {
     private ArrayList<projectile> projectiles = new ArrayList<>();
 
     private double clicX = 0, clicY = 0; 
+    private double overX = 0, overY = 0; 
 
     class tour {
         private int menu=0;
@@ -52,58 +54,57 @@ public class TowerDefense extends Application {
             this.cooldown=a;
         }
     }
-        class enemi {
-            private double positionX=0;
-            private double positionY=0;
-            private int type=0;
-            private int hp=2;
-            private double vitesse=0;
-            private int or=0;
+    class enemi {
+        private double positionX=0;
+        private double positionY=0;
+        private int type=0;
+        private int hp=2;
+        private double vitesse=0;
+        private int or=0;
 
-    
-            public enemi(double a ,double b ,int c){
-                this.positionX=a;
-                this.positionY=b;
-                this.type=c;
-            }
-            public void setPosX(double a){
-                this.positionX=a;
-            }
-            public void setPosY(double b){
-                this.positionY=b;
-            }
-            public void setHp(int c){
-                this.hp=c;
-            }
-            public void initType(int a ,double b ,int c){
-                this.hp=a;
-                this.vitesse=b;
-                this.or=c;
-            }
+
+        public enemi(double a ,double b ,int c){
+            this.positionX=a;
+            this.positionY=b;
+            this.type=c;
         }
-    
-        class projectile {
-            private double positionX=0;
-            private double positionY=0;
-            private int cible=0;
-            private int depart=0;
-            private int touche=0;
-            
-            
-            public projectile(double a ,double b ,int c  ,int d){
-                this.positionX=a;
-                this.positionY=b;
-                this.cible=c;
-                this.depart=d;
-            }
-            public void setPos(double a,double b){
-                this.positionX=a;
-                this.positionY=b;
-            }
-            public void setTouche(int a){
-                this.touche=a;
-            }
+        public void setPosX(double a){
+            this.positionX=a;
         }
+        public void setPosY(double b){
+            this.positionY=b;
+        }
+        public void setHp(int c){
+            this.hp=c;
+        }
+        public void initType(int a ,double b ,int c){
+            this.hp=a;
+            this.vitesse=b;
+            this.or=c;
+        }
+    }
+    class projectile {
+        private double positionX=0;
+        private double positionY=0;
+        private int cible=0;
+        private int depart=0;
+        private int touche=0;
+        
+        
+        public projectile(double a ,double b ,int c  ,int d){
+            this.positionX=a;
+            this.positionY=b;
+            this.cible=c;
+            this.depart=d;
+        }
+        public void setPos(double a,double b){
+            this.positionX=a;
+            this.positionY=b;
+        }
+        public void setTouche(int a){
+            this.touche=a;
+        }
+    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -118,7 +119,11 @@ public class TowerDefense extends Application {
             clicY = event.getY();
             System.out.println("Clic détecté à : " + clicX + ", " + clicY);
         });
-        
+        scene.setOnMouseMoved(event -> {
+            overX = event.getX();
+            overY = event.getY();
+            
+        });
         // Détecter les touches
         // scene.setOnKeyPressed(event -> {
         //     if (event.getCode() == KeyCode.Q && paddleX > 0) {
@@ -144,7 +149,7 @@ public class TowerDefense extends Application {
     }
 
     private void initialisation(){
-   
+        
         for (int i=0;i<3;i++){
             tours.add(new tour(190, 30+130*i));
             tours.add(new tour(190+130*i,420));
@@ -156,24 +161,24 @@ public class TowerDefense extends Application {
             tours.add(new tour(450, 550+130*i));
         }
         
-        for (int i=0;i<8;i++){
+        for (int i=0;i<18;i++){
             enemis.add(new enemi(265, 0, 1));
             enemis.get(enemis.size()-1).setPosY(posInitY);
-            posInitY=posInitY-30;
+            posInitY=posInitY-80;
             System.out.println(enemis.get(i).positionY);
         }
         
         for (int i=0;i<4;i++){
             enemis.add(new enemi(265, 0, 2));
             enemis.get(enemis.size()-1).setPosY(posInitY);
-            posInitY=posInitY-30;  
+            posInitY=posInitY-80;  
             
  
         }
         for (int i=0;i<4;i++){
             enemis.add(new enemi(265, 0, 3));
             enemis.get(enemis.size()-1).setPosY(posInitY);;
-            posInitY=posInitY-30;
+            posInitY=posInitY-80;
         }
         
         for (int i=0;i<enemis.size(); i++){
@@ -192,7 +197,6 @@ public class TowerDefense extends Application {
     }
 
     private void update() {
-        //initialisation
         if(initialisation==0){
             initialisation();
             initialisation++;
@@ -274,22 +278,23 @@ public class TowerDefense extends Application {
         for ( int i = 0; i < tours.size(); i++) {
             if(tours.get(i).menu ==1){
                 if(tours.get(i).posY+10 < clicY && clicY < tours.get(i).posY+30){
-                    if(tours.get(i).posX+50 < clicX && clicX < tours.get(i).posX+70){
+                    if(tours.get(i).posX+50 < clicX && clicX < tours.get(i).posX+70 && or>50){
                         tours.get(i).setType(1); 
                         System.out.println("archer");
                         tours.get(i).setMenu(2); 
                         tours.get(i).setLvl(1);
                         clicX = 0;
                         clicY = 0;
+                        or=or-50;
                     }
-                    if(tours.get(i).posX-30 < clicX && clicX < tours.get(i).posX-10){
+                    if(tours.get(i).posX-30 < clicX && clicX < tours.get(i).posX-10 && or>80){
                         tours.get(i).setType(2);
                         System.out.println("mage");
                         tours.get(i).setMenu(2); 
                         tours.get(i).setLvl(1);
                         clicX = 0;
                         clicY = 0;
-
+                        or=or-80;
                     }
                 }
             }
@@ -298,8 +303,9 @@ public class TowerDefense extends Application {
         for ( int i = 0; i < tours.size(); i++) {
             if(tours.get(i).lvl >0){
                 if(tours.get(i).posY+10 < clicY && clicY < tours.get(i).posY+30){
-                    if(tours.get(i).posX+50 < clicX && clicX < tours.get(i).posX+70){
-                        tours.get(i).setLvl(tours.get(i).lvl+1); 
+                    if(tours.get(i).posX+50 < clicX && clicX < tours.get(i).posX+70 && or > tours.get(i).lvl*30){
+                        or = or-tours.get(i).lvl*30;
+                        tours.get(i).setLvl(tours.get(i).lvl+1);
                         System.out.println("lvl"+tours.get(i).lvl);
                     }
                 }
@@ -319,9 +325,30 @@ public class TowerDefense extends Application {
             }
         }
         //bouton bonus
-        if (clicX>50 && clicX<100 && clicY>50 && clicY<80 && cooldownULT==0){
+        if (clicX>50 && clicX<100 && clicY>50 && clicY<80 && cooldownULT==0 && lanceB==0){
+            // for (int i=0; i<enemis.size(); i++){
+            lanceB=1;
+                // if(enemis.get(i).positionY>0){
+                //     enemis.get(i).setHp(0);
+                //     cooldownULT=5000;
+                // }
+            // }
+            clicX = 0;
+            clicY = 0;
+        }
+        if (clicX>50 && clicX<100 && clicY>50 && clicY<80 && cooldownULT==0 && lanceB==1){
+            lanceB=0;
+            
+        }
+        else if(lanceB==1){
+            
             for (int i=0; i<enemis.size(); i++){
-                if(enemis.get(i).positionY>0){
+                double calcx = enemis.get(i).positionX - clicX;
+                double calcy = enemis.get(i).positionY - clicY;
+                double distance = Math.sqrt(calcx * calcx + calcy * calcy);
+                
+                if (distance<75){
+                    lanceB=0;
                     enemis.get(i).setHp(0);
                     cooldownULT=5000;
                 }
@@ -335,8 +362,14 @@ public class TowerDefense extends Application {
         if (cooldownULT>0){
             cooldownULT=cooldownULT-1;
         }
-        
+        //perte de vie 
+        for ( int i = 0; i < enemis.size(); i++) {
+            if (enemis.get(i).positionY>800 & enemis.get(i).hp==1){
+                vie--;
+            }
+        }
     }
+
 
     private void draw(GraphicsContext gc) {
         // Fond noir
@@ -425,9 +458,20 @@ public class TowerDefense extends Application {
         gc.setFill(Color.RED);
         gc.fillRect(50, 50, 50, 30);
         gc.setFill(Color.BLACK);
-        System.out.println(cooldownULT);
         gc.fillRect(50, 50, cooldownULT / 100, 30);
         gc.strokeRect(50, 50, 50, 30);
+        //bonus activé
+        if(lanceB==1){
+            gc.setStroke(Color.YELLOW);
+            gc.strokeOval(overX-75, overY-75, 150, 150);
+        }
+        
+        //vie 
+        gc.setFill(Color.RED);
+        gc.fillRect(50, 750, vie * 2.5, 30);
+        gc.setFill(Color.BLACK);
+        gc.strokeRect(50, 50, 50, 30);
+        
     }
 
     public static void main(String[] args) {
